@@ -27,3 +27,4 @@ yarn
 
 echo "---> Building application from source..."
 yarn build
+echo '{"public": "build","rewrites": [{ "source": "*", "destination": "/index.html" }]}' > serve.json
