@@ -1,0 +1,8 @@
+sudo: required
+language: go
+services:
+  - docker
+before_script:
+  - go get github.com/openshift/source-to-image/cmd/s2i
+script:
+  - make test
