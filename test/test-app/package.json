@@ -1,0 +1,13 @@
+{
+  "name": "test-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "NODE_ENV=production webpacker build"
+  },
+  "author": "Wang Zuo <wzuoadjusted@gmail.com> (https://wangzuo.me)",
+  "private": "true",
+  "dependencies": {
+    "webpacker-cli": "^0.5.0"
+  }
+}
