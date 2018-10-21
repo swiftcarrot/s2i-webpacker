@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "serve",
     "build": "NODE_ENV=production webpacker build"
   },
   "author": "Wang Zuo <wzuoadjusted@gmail.com> (https://wangzuo.me)",

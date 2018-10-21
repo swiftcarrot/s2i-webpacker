@@ -22,7 +22,8 @@ fi
 echo "---> Installing application source..."
 cp -Rf /tmp/src/. ./
 
-echo "---> Building application from source..."
-
+echo "---> Downloading dependencies..."
 yarn
-# TODO: Add build steps for your application, eg npm install, bundle install, pip install, etc.
+
+echo "---> Building application from source..."
+yarn build
