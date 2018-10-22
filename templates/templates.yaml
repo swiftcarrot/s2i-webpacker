@@ -1,0 +1,145 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: hermes-webpacker
+  annotations:
+    description: Hermes Server
+    tags: hermes,nodejs
+    iconClass: icon-nodejs
+labels:
+  template: hermes-webpacker
+parameters:
+- name: NAME
+  displayName: Application Name
+  description: The name assigned to all of the frontend objects defined in this template.
+  required: true
+  value: hermes-webpacker
+- name: CPU_LIMIT
+  displayName: CPU Limit
+  required: true
+  description: Maximum amount of CPU the hermes webpacker container can use.
+  value: "500m"
+- name: MEMORY_LIMIT
+  displayName: Memory Limit
+  required: true
+  description: Maximum amount of memory the hermes webpacker container can use.
+  value: 500Mi
+- name: SOURCE_REPOSITORY_URL
+  displayName: Git Repository URL
+  required: true
+  description: The URL of the repository with your application source code.
+  value: git@gitlab.blockfin.us:infrastructure/hermes.git
+- name: SOURCE_REPOSITORY_REF
+  displayName: Git Reference
+  description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch.
+  value: "master"
+- name: GITLAB_WEBHOOK_SECRET
+  displayName: Gitlab Webhook Secret
+  description: A secret string used to configure the Gitlab webhook.
+  generate: expression
+  from: "[a-zA-Z0-9]{40}"
+objects:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Exposes and load balances the application pods
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: "${NAME}"
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Keeps track of changes in the application image
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Defines how to build the application
+  spec:
+    source:
+      type: Git
+      git:
+        uri: "${SOURCE_REPOSITORY_URL}"
+        ref: "${SOURCE_REPOSITORY_REF}"
+      contextDir: "/"
+      sourceSecret:
+        name: gitlab-hermes-source-secret
+    strategy:
+      type: Source
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: s2i-webpacker-builder:latest
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}:latest"
+    triggers:
+    - type: ImageChange
+    - type: ConfigChange
+    - type: Gitlab
+      gitlab:
+        secret: "${GITLAB_WEBHOOK_SECRET}"
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Defines how to deploy the application server
+  spec:
+    strategy:
+      type: Rolling
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - hermes-webpacker
+        from:
+          kind: ImageStreamTag
+          name: "${NAME}:latest"
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: "${NAME}"
+    template:
+      metadata:
+        name: "${NAME}"
+        labels:
+          name: "${NAME}"
+      spec:
+        containers:
+        - name: hermes-webpacker
+          image: "${NAME}"
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 5
+            httpGet:
+              path: "/"
+              port: 8080
+          livenessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+            httpGet:
+              path: "/"
+              port: 8080
+          resources:
+            limits:
+              cpu: "${CPU_LIMIT}"
+              memory: "${MEMORY_LIMIT}"
+            requests:
+              cpu: 100m
+              memory: 100Mi
