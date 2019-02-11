@@ -23,6 +23,7 @@ echo "---> Installing application source..."
 cp -Rf /tmp/src/. ./
 
 echo "---> Downloading dependencies..."
+npm config get
 npm install
 
 echo "---> Building application from source..."
