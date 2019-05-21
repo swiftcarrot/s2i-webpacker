@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/swiftcarrot/s2i-webpacker.svg?branch=master)](https://travis-ci.org/swiftcarrot/s2i-webpacker)
+
 # Creating a basic S2I builder image
 
 ## Getting started
