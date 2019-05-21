@@ -9,6 +9,6 @@
   "author": "Wang Zuo <wzuoadjusted@gmail.com> (https://wangzuo.me)",
   "private": "true",
   "dependencies": {
-    "webpacker-cli": "^1.0.2"
+    "@swiftcarrot/webpacker": "^2.3.4"
   }
 }

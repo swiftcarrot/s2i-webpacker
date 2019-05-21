@@ -15,12 +15,20 @@ ENV NODE_ENV production
 
 RUN yum install -y curl && yum clean all -y
 RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
-RUN yum install -y nodejs && yum clean all -y
+RUN curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
+RUN yum install -y nodejs yarn && yum clean all -y
+
 RUN npm config set registry https://registry.npm.taobao.org
 RUN npm config set disturl https://npm.taobao.org/dist
 RUN npm set sass_binary_site https://npm.taobao.org/mirrors/node-sass
+
 RUN npm install npm -g
 RUN npm install serve -g
+
+ENV SASS_BINARY_SITE https://npm.taobao.org/mirrors/node-sass
+# RUN yarn config set registry https://registry.npm.taobao.org -g
+# RUN yarn config set disturl https://npm.taobao.org/dist -g
+# RUN yarn config list
 
 # TODO (optional): Copy the builder files into /opt/app-root
 # COPY ./<builder_folder>/ /opt/app-root/
